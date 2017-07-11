@@ -24,6 +24,7 @@
 
 #define DEBUG 0
 #define DUMP_DEBUG 0
+static int verbose = 0;
 
 /* bootinfo -> number of boot table entries */
 #define NR_BOOTINFO 4
@@ -306,22 +307,22 @@ static void nsih_user_config(char *buffer)
 	info->crc32 =
 		__calc_crc((void *)(buffer + HEADER_SIZE), input_size);
 
-#ifdef BOOT_DEBUG
-	NX_DEBUG("LOADSIZE   : %u\n", info->loadsize);
-	NX_DEBUG("LOADADDR   : %llx\n", info->loadaddr);
-	NX_DEBUG("LAUNCHADDR : %llx\n", info->startaddr);
-	NX_DEBUG("SIGNATURE  : %x\n", info->signature);
-	NX_DEBUG("crc32      : %x\n", info->crc32);
-	for (i = 0; i < load_count; i++)
-		NX_DEBUG("to load device addr: 0x%llx\n",
-			 info->dbi[i].sdmmcbi.deviceaddr);
-	for (i = 0; i < boot_count; i++)
-		NX_DEBUG("boot device number: %d\n",
-			 info->dbi[i].sdmmcbi.loaddevicenum);
-	for (i = 0; i < port_count; i++)
-		NX_DEBUG("port number: %d\n",
-			 info->dbi[i].sdmmcbi.portnumber);
-#endif
+	if (verbose) {
+		printf("LOADSIZE   : %u\n", info->loadsize);
+		printf("LOADADDR   : %llx\n", info->loadaddr);
+		printf("LAUNCHADDR : %llx\n", info->startaddr);
+		printf("SIGNATURE  : %x\n", info->signature);
+		printf("crc32      : %x\n", info->crc32);
+		for (i = 0; i < load_count; i++)
+			printf("to load device addr: 0x%llx\n",
+				 info->dbi[i].sdmmcbi.deviceaddr);
+		for (i = 0; i < boot_count; i++)
+			printf("boot device number: %d\n",
+				 info->dbi[i].sdmmcbi.loaddevicenum);
+		for (i = 0; i < port_count; i++)
+			printf("port number: %d\n",
+				 info->dbi[i].sdmmcbi.portnumber);
+	}
 }
 
 static void nsih_get_bootmode(void)
@@ -519,7 +520,7 @@ int32_t main(int32_t argc, char **argv)
 	}
 
 	while (-1 != (param_opt =
-		      getopt(argc, argv, "hc:t:n:i:o:l:e:m:b:p:uf:z:k:"))) {
+		      getopt(argc, argv, "hc:t:n:i:o:l:e:m:b:p:uvf:z:k:"))) {
 		switch (param_opt) {
 		case 'h':
 			usage();
@@ -585,6 +586,9 @@ int32_t main(int32_t argc, char **argv)
 			break;
 		case 'u':
 			unified_image = 1;
+			break;
+		case 'v':
+			verbose = 1;
 			break;
 		case 'f':
 			if (simg_ofscnt >= NR_BOOTINFO) {
