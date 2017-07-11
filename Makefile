@@ -740,6 +740,10 @@ endif
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += u-boot.srec u-boot.bin System.map u-boot.cfg binary_size_check
 
+ifdef CONFIG_ARCH_S5P6818
+ALL-y += fip-nonsecure.img
+endif
+
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
@@ -886,6 +890,24 @@ OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
 
 u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
 	$(call if_changed,objcopy)
+
+# fip-nonsecure.bin
+ifdef CONFIG_ARCH_S5P6818
+BINGEN = tools/nexell/SECURE_BINGEN
+FIP_CREATE = tools/fip_create/fip_create
+
+fip-nonsecure.bin: u-boot.bin tools
+	@if [ -e "$@" ]; then rm -f $@; fi
+	$(Q)$(FIP_CREATE) --dump --bl33 $< $@
+
+NSIH ?= tools/nexell/nsih/nanopi3.txt
+BINGEN_FLAGS := -l 0x7df00000 -e 0x00000000 -n $(NSIH)
+
+fip-nonsecure.img: fip-nonsecure.bin $(NSIH)
+	@echo "Creating \"$@\" (<-- $(NSIH))"
+	$(Q)$(BINGEN) -c S5P6818 -t 3rdboot $(BINGEN_FLAGS) -i $< -o $@
+
+endif
 
 #
 # U-Boot entry point, needed for booting of full-blown U-Boot
@@ -1452,6 +1474,7 @@ clean: $(clean-dirs)
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
+	@rm -rf fip-nonsecure.*
 
 # mrproper - Delete all generated files, including .config
 #
