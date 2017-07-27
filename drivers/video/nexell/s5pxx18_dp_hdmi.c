@@ -103,7 +103,7 @@ static inline int hdmi_wait_phy_ready(void)
 	do {
 		u32 val = nx_hdmi_get_reg(0, HDMI_LINK_PHY_STATUS_0);
 		if (val & 0x01) {
-			printf("HDMI: phy ready...\n");
+			printf("HDMI:  phy ready...\n");
 			return 1;
 		}
 		mdelay(10);
@@ -496,7 +496,7 @@ void nx_hdmi_display(int module,
 	int preset = dev->preset;
 	int i = 0;
 
-	printf("MIPI: display.%d\n", module);
+	debug("HDMI:  display.%d\n", module);
 
 	switch (preset) {
 	case 0:
@@ -516,7 +516,7 @@ void nx_hdmi_display(int module,
 		return;
 	}
 
-	printf("HDMI: display.%d, preset %d (%4d * %4d)\n",
+	printf("HDMI:  display.%d, preset %d (%4d * %4d)\n",
 	       module, preset, top->screen_width, top->screen_height);
 
 	dp_control_init(module);

@@ -65,7 +65,7 @@ static int lvds_setup(int module, int input,
 		voltage = dev->voltage_level;
 	}
 
-	printf("LVDS:");
+	printf("LVDS:  ");
 	printf("%s, ", format == DP_LVDS_FORMAT_VESA ? "VESA" :
 		format == DP_LVDS_FORMAT_JEIDA ? "JEIDA" : "LOC");
 	printf("voltage LV:0x%x\n", voltage);
@@ -229,7 +229,7 @@ void nx_lvds_display(int module,
 	int count = top->plane_num;
 	int i = 0;
 
-	printf("LVDS: dp.%d\n", module);
+	printf("LVDS:  dp.%d\n", module);
 
 	dp_control_init(module);
 	dp_plane_init(module);
@@ -248,7 +248,7 @@ void nx_lvds_display(int module,
 
 	dp_plane_screen_enable(module, 1);
 
-	/* set mipi */
+	/* set lvds */
 	lvds_setup(module, input, sync, ctrl, dev);
 
 	lvds_enable(1);

@@ -19,29 +19,10 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/display.h>
+#include <asm/arch/display_dev.h>
 #include "videomodes.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct nx_display_dev {
-#ifdef CONFIG_VIDEO
-	GraphicDevice graphic_device;
-#elif defined CONFIG_LCD
-	vidinfo_t *panel_info;
-#endif
-	unsigned long base;
-	int module;
-	struct dp_sync_info sync;
-	struct dp_ctrl_info ctrl;
-	struct dp_plane_top top;
-	struct dp_plane_info planes[DP_PLANS_NUM];
-	int dev_type;
-	void *device;
-	struct dp_plane_info *fb_plane;
-	unsigned int depth;	/* byte per pixel */
-	unsigned int fb_addr;
-	unsigned int fb_size;
-};
 
 #if defined CONFIG_SPL_BUILD ||	\
 	(!defined(CONFIG_DM) && !defined(CONFIG_OF_CONTROL))
@@ -391,6 +372,11 @@ static int nx_display_parse_dt(const void *blob,
 }
 #endif
 
+__weak int nx_display_fixup_dp(struct nx_display_dev *dp)
+{
+	return 0;
+}
+
 static struct nx_display_dev *nx_display_setup(void)
 {
 	struct nx_display_dev *dp;
@@ -425,6 +411,8 @@ static struct nx_display_dev *nx_display_setup(void)
 		goto err_setup;
 #endif
 
+	nx_display_fixup_dp(dp);
+
 	for (i = 0; dp->top.plane_num > i; i++) {
 		dp->planes[i].layer = i;
 		if (dp->planes[i].enable && !dp->fb_plane) {
@@ -438,8 +426,8 @@ static struct nx_display_dev *nx_display_setup(void)
 #ifdef CONFIG_VIDEO_NX_RGB
 	case DP_DEVICE_RGBLCD:
 		nx_rgb_display(dp->module,
-			       &dp->sync, &dp->ctrl, &dp->top,
-			       dp->planes, (struct dp_rgb_dev *)dp->device);
+				&dp->sync, &dp->ctrl, &dp->top,
+				dp->planes, (struct dp_rgb_dev *)dp->device);
 		break;
 #endif
 #ifdef CONFIG_VIDEO_NX_LVDS
@@ -468,7 +456,7 @@ static struct nx_display_dev *nx_display_setup(void)
 		goto err_setup;
 	};
 
-	printf("LCD: [%s] dp.%d.%d %dx%d %dbpp FB:0x%08x\n",
+	printf("LCD:   [%s] dp.%d.%d %dx%d %dbpp FB:0x%08x\n",
 	       dp_dev_str[dp->dev_type], dp->module, dp->fb_plane->layer,
 	       dp->fb_plane->width, dp->fb_plane->height, dp->depth * 8,
 	       dp->fb_addr);

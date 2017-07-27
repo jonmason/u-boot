@@ -504,7 +504,7 @@ static int nx_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 		}
 
 		if (ret) {
-			printf("i2c_xfer: error sending\n");
+			debug("i2c_xfer: error sending\n");
 			return -EREMOTEIO;
 		}
 	}
