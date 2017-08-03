@@ -436,10 +436,18 @@ int dram_init(void)
 /* u-boot dram board specific */
 void dram_init_banksize(void)
 {
+#define SCR_USER_SIG6_READ		(SCR_ALIVE_BASE + 0x0F0)
+	int g_NR_chip = readl(SCR_USER_SIG6_READ) & 0x3;
+
 	/* set global data memory */
 	gd->bd->bi_arch_number = machine_arch_type;
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x00000100;
 
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size  = CONFIG_SYS_SDRAM_SIZE;
+
+	if (g_NR_chip > 1) {
+		gd->bd->bi_dram[1].start = 0x80000000;
+		gd->bd->bi_dram[1].size  = 0x40000000;
+	}
 }

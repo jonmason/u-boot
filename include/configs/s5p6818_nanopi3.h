@@ -39,8 +39,8 @@
 #define CONFIG_FB_ADDR			0x46000000
 #define CONFIG_BMP_LOAD_ADDR		0x47000000
 
-/* dram 1 bank num */
-#define CONFIG_NR_DRAM_BANKS		1
+/* dram 2 bank num */
+#define CONFIG_NR_DRAM_BANKS		2
 
 /* kernel load address */
 #define CONFIG_SYS_LOAD_ADDR		0x48000000
