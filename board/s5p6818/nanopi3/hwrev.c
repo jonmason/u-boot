@@ -28,8 +28,8 @@
  *  0b001 - NanoPC-T3
  *  0b100 - NanoPC-T3 Trunk
  *  0b011 - Smart6818
+ *  0b101 - Fire 3
  *  0b111 - NanoPi M3
- *  0b010 - NanoPi S3
  */
 #define __IO_GRP		2	/* GPIO_C */
 #define __IO_PCB1			26
@@ -91,12 +91,10 @@ const char *get_board_name(void)
 	switch (pcb_rev) {
 		case 1:
 			return "NanoPC-T3";
-		case 2:
-			return "NanoPi S3";
-		case 3:
-			return "Smart6818";
 		case 4:
 			return "NanoPC-T3T";
+		case 5:
+			return "NanoPi Fire 3";
 		case 7:
 			return "NanoPi M3";
 		default:
