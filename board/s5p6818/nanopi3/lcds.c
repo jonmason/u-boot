@@ -29,6 +29,12 @@
 #define PAD_GPIO_A	0
 #endif
 
+static inline void common_gpio_init(void)
+{
+	/* PVCLK */
+	nx_gpio_set_fast_slew(PAD_GPIO_A, 0, 1);
+}
+
 static void s70_gpio_init(void)
 {
 	int i;
@@ -45,10 +51,19 @@ static void s70_gpio_init(void)
 		nx_gpio_set_drive_strength(PAD_GPIO_A, i, 1);
 }
 
-static void hd101_gpio_init(void)
+static void s702_gpio_init(void)
 {
-	nx_gpio_set_drive_strength(PAD_GPIO_A,  0, 2);
-	nx_gpio_set_drive_strength(PAD_GPIO_A, 27, 2);
+	int i;
+
+	common_gpio_init();
+
+	nx_gpio_set_drive_strength(PAD_GPIO_A, 0, 2);
+
+	for (i = 1; i < 25; i++)
+		nx_gpio_set_drive_strength(PAD_GPIO_A, i, 0);
+
+	for (; i < 28; i++)
+		nx_gpio_set_drive_strength(PAD_GPIO_A, i, 1);
 }
 
 static void s430_gpio_init(void)
@@ -57,6 +72,25 @@ static void s430_gpio_init(void)
 
 	for (i = 0; i < 28; i++)
 		nx_gpio_set_drive_strength(PAD_GPIO_A, i, 1);
+}
+
+static void hd101_gpio_init(void)
+{
+	int i;
+
+	common_gpio_init();
+
+	nx_gpio_set_drive_strength(PAD_GPIO_A, 0, 2);
+
+	for (i = 1; i < 25; i++)
+		nx_gpio_set_drive_strength(PAD_GPIO_A, i, 1);
+
+	nx_gpio_set_drive_strength(PAD_GPIO_A, 27, 1);
+}
+
+static void hd700_gpio_init(void)
+{
+	hd101_gpio_init();
 }
 
 /* NXP display configs for supported LCD */
@@ -85,33 +119,7 @@ static struct nxp_lcd wxga_hd700 = {
 		.inv_vsync = 0,
 		.inv_vden = 0,
 	},
-};
-
-static struct nxp_lcd wxga_hd702 = {
-	.width = 800,
-	.height = 1280,
-	.p_width = 94,
-	.p_height = 151,
-	.bpp = 24,
-	.freq = 60,
-
-	.timing = {
-		.h_fp = 20,
-		.h_bp = 20,
-		.h_sw = 24,
-		.v_fp =  4,
-		.v_fpe = 1,
-		.v_bp =  4,
-		.v_bpe = 1,
-		.v_sw =  8,
-	},
-	.polarity = {
-		.rise_vclk = 1,
-		.inv_hsync = 0,
-		.inv_vsync = 0,
-		.inv_vden = 0,
-	},
-	.gpio_init = hd101_gpio_init,
+	.gpio_init = hd700_gpio_init,
 };
 
 static struct nxp_lcd wvga_s70 = {
@@ -120,10 +128,10 @@ static struct nxp_lcd wvga_s70 = {
 	.p_width = 155,
 	.p_height = 93,
 	.bpp = 24,
-	.freq = 63,
+	.freq = 61,
 
 	.timing = {
-		.h_fp = 80,
+		.h_fp = 48,
 		.h_bp = 36,
 		.h_sw = 10,
 		.v_fp = 22,
@@ -141,13 +149,40 @@ static struct nxp_lcd wvga_s70 = {
 	.gpio_init = s70_gpio_init,
 };
 
+static struct nxp_lcd wvga_s702 = {
+	.width = 800,
+	.height = 480,
+	.p_width = 155,
+	.p_height = 93,
+	.bpp = 24,
+	.freq = 61,
+
+	.timing = {
+		.h_fp = 44,
+		.h_bp = 26,
+		.h_sw = 20,
+		.v_fp = 22,
+		.v_fpe = 1,
+		.v_bp = 15,
+		.v_bpe = 1,
+		.v_sw = 8,
+	},
+	.polarity = {
+		.rise_vclk = 1,
+		.inv_hsync = 1,
+		.inv_vsync = 1,
+		.inv_vden = 0,
+	},
+	.gpio_init = s702_gpio_init,
+};
+
 static struct nxp_lcd wvga_s70d = {
 	.width = 800,
 	.height = 480,
 	.p_width = 155,
 	.p_height = 93,
 	.bpp = 24,
-	.freq = 63,
+	.freq = 61,
 
 	.timing = {
 		.h_fp = 80,
@@ -165,7 +200,7 @@ static struct nxp_lcd wvga_s70d = {
 		.inv_vsync = 1,
 		.inv_vden = 0,
 	},
-	.gpio_init = s70_gpio_init,
+	.gpio_init = s702_gpio_init,
 };
 
 static struct nxp_lcd wvga_w50 = {
@@ -559,10 +594,10 @@ static struct {
 	{  25, "HD101",	&wxga_hd101,   0, 1, LCD_RGB  },
 	{  32, "HD101B",&wxga_hd101,   0, 1, LCD_RGB  },
 	{  18, "HD700",	&wxga_hd700, 213, 1, LCD_RGB  },
-	{  30, "HD702",	&wxga_hd702, 213, 1, LCD_RGB  },
-	{  33, "H70",	&wxga_hd702, 213, 0, LCD_VESA },
+	{  30, "HD702",	&wxga_hd700, 213, 1, LCD_RGB  },
+	{  33, "H70",	&wxga_hd700, 213, 0, LCD_VESA },
 	{   3, "S70",	&wvga_s70,   128, 1, LCD_RGB  },
-	{  24, "S702",	&wvga_s70,   128, 3, LCD_RGB  },
+	{  24, "S702",	&wvga_s702,  128, 3, LCD_RGB  },
 	{  26, "S70D",	&wvga_s70d,  128, 0, LCD_RGB  },
 	{  14, "H43",	&hvga_h43,     0, 0, LCD_RGB  },
 	{  19, "P43",	&hvga_p43,     0, 0, LCD_RGB  },
