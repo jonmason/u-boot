@@ -91,6 +91,7 @@ void nx_gpio_set_pull_select32(u32 module_index, u32 value);
 int nx_gpio_get_pull_select(u32 module_index, u32 bit_number);
 u32 nx_gpio_get_pull_select32(u32 module_index);
 void nx_gpio_set_pull_mode(u32 module_index, u32 bit_number, u32 mode);
+void nx_gpio_set_fast_slew(u32 module_index, u32 bit_number, int enable);
 void nx_gpio_set_drive_strength_disable_default(u32 module_index,
 						u32 bit_number, int enable);
 void nx_gpio_set_drive_strength_disable_default(u32 module_index,

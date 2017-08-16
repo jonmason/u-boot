@@ -282,6 +282,15 @@ void nx_gpio_set_pull_mode(u32 module_index, u32 bit_number, u32 mode)
 	}
 }
 
+void nx_gpio_set_fast_slew(u32 module_index, u32 bit_number,
+				int enable)
+{
+	register struct nx_gpio_register_set *pregister;
+	pregister = __g_module_variables[module_index].pregister;
+	nx_gpio_set_bit(&pregister->gpiox_slew, bit_number,
+			(int)(!enable));
+}
+
 void nx_gpio_set_drive_strength(u32 module_index, u32 bit_number,
 				u32 drvstrength)
 {
