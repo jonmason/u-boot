@@ -322,7 +322,7 @@
 	"rootpart=" __stringify(CONFIG_ROOT_PART) "\0"		\
 	"bootpart=" __stringify(CONFIG_BOOT_PART) "\0"		\
 	"kernel=Image\0"					\
-	"loadaddr=0x40008000\0"					\
+	"loadaddr=0x40080000\0"					\
 	"dtb_name=s5p6818-nanopi3-rev01.dtb\0"			\
 	"dtb_addr=" __stringify(CONFIG_KERNEL_DTB_ADDR) "\0"	\
 	"initrd_name=ramdisk.img\0"				\
