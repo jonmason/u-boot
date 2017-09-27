@@ -313,7 +313,7 @@
 	  "fdt addr $dtb_addr;"					\
 	  "fdt resize;"						\
 	  "fdt mk /reserved-memory display_reserved;"		\
-	  "fdt set /reserved-memory/display_reserved reg <$fb_addr 0x300000>;"	\
+	  "fdt set /reserved-memory/display_reserved reg <$fb_addr 0x800000>;"	\
 	"fi;\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
