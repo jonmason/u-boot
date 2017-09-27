@@ -29,6 +29,8 @@
 #include <asm/arch/display.h>
 #include <asm/arch/display_dev.h>
 
+#include <u-boot/md5.h>
+
 #include "hwrev.h"
 #include "onewire.h"
 #include "nxp-fb.h"
@@ -238,6 +240,55 @@ static void bd_lcd_init(void)
 	}
 }
 
+static int mac_read_from_generic_eeprom(u8 *addr)
+{
+	return -1;
+}
+
+static void make_ether_addr(u8 *addr)
+{
+	u32 hash[20];
+
+#define ETHER_MAC_TAG  "ethmac"
+	memset(hash, 0, sizeof(hash));
+	memcpy(hash + 12, ETHER_MAC_TAG, sizeof(ETHER_MAC_TAG));
+
+	hash[4] = readl(PHY_BASEADDR_ECID + 0x00);
+	hash[5] = readl(PHY_BASEADDR_ECID + 0x04);
+	hash[6] = readl(PHY_BASEADDR_ECID + 0x08);
+	hash[7] = readl(PHY_BASEADDR_ECID + 0x0c);
+
+	md5((unsigned char *)&hash[4], 64, (unsigned char *)hash);
+
+	hash[0] ^= hash[2];
+	hash[1] ^= hash[3];
+
+	memcpy(addr, (char *)hash, 6);
+	addr[0] &= 0xfe;	/* clear multicast bit */
+	addr[0] |= 0x02;
+}
+
+static void set_ether_addr(void)
+{
+	unsigned char mac[6];
+	char ethaddr[20];
+	int ret;
+
+	if (getenv("ethaddr"))
+		return;
+
+	ret = mac_read_from_generic_eeprom(mac);
+	if (ret < 0)
+		make_ether_addr(mac);
+
+	sprintf(ethaddr, "%02x:%02x:%02x:%02x:%02x:%02x",
+			mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	if (!ret)
+		printf("MAC:  [%s]\n", ethaddr);
+
+	setenv("ethaddr", ethaddr);
+}
+
 #ifdef CONFIG_REVISION_TAG
 static void set_board_rev(void)
 {
@@ -382,6 +433,8 @@ int board_late_init(void)
 	set_board_rev();
 #endif
 	set_dtb_name();
+
+	set_ether_addr();
 
 #ifdef CONFIG_SILENT_CONSOLE
 	gd->flags &= ~GD_FLG_SILENT;
