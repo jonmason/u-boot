@@ -243,10 +243,19 @@ static void set_board_rev(void)
 {
 	char info[64] = {0, };
 
-	snprintf(info, ARRAY_SIZE(info), "%d", get_board_rev());
+	snprintf(info, ARRAY_SIZE(info), "%02x", get_board_rev());
 	setenv("board_rev", info);
 }
 #endif
+
+static void set_dtb_name(void)
+{
+	char info[64] = {0, };
+
+	snprintf(info, ARRAY_SIZE(info),
+			"s5p6818-nanopi3-rev%02x.dtb", get_board_rev());
+	setenv("dtb_name", info);
+}
 
 static void bd_update_env(void)
 {
@@ -372,6 +381,7 @@ int board_late_init(void)
 #ifdef CONFIG_REVISION_TAG
 	set_board_rev();
 #endif
+	set_dtb_name();
 
 #ifdef CONFIG_SILENT_CONSOLE
 	gd->flags &= ~GD_FLG_SILENT;
