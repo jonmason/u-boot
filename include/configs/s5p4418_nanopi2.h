@@ -44,12 +44,13 @@
 #define CONFIG_NR_DRAM_BANKS		1
 
 /* kernel load address */
-#define CONFIG_SYS_LOAD_ADDR		0x79000000
+#define CONFIG_SYS_LOAD_ADDR		0x71080000
+#define CONFIG_INITRD_START		0x79000000
 #define CONFIG_KERNEL_DTB_ADDR		0x7A000000
 
 /* fastboot buffer start, size */
 #define CONFIG_FASTBOOT_BUF_ADDR	0x7B000000
-#define CONFIG_FASTBOOT_BUF_SIZE	(CONFIG_SYS_MEM_SIZE - 0x10000000)
+#define CONFIG_FASTBOOT_BUF_SIZE	(CONFIG_SYS_MEM_SIZE - 0x2E000000)
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -131,6 +132,7 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SUPPORT_RAW_INITRD	1
 #define CONFIG_REVISION_TAG
+#define CONFIG_CMD_BOOTZ
 #undef CONFIG_BOOTM_NETBSD
 #undef CONFIG_BOOTM_RTEMS
 
@@ -315,16 +317,17 @@
 	"fi;\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
-	"fdt_high=0xffffffffffffffff\0"				\
+	"fdt_high=0xffffffff\0"					\
+	"initrd_high=0xffffffff\0"				\
 	"rootdev=" __stringify(CONFIG_ROOT_DEV) "\0"		\
 	"rootpart=" __stringify(CONFIG_ROOT_PART) "\0"		\
 	"bootpart=" __stringify(CONFIG_BOOT_PART) "\0"		\
-	"kernel=Image\0"					\
-	"loadaddr=0x71080000\0"					\
+	"kernel=zImage\0"					\
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"	\
 	"dtb_name=s5p4418-nanopi2-rev01.dtb\0"			\
 	"dtb_addr=" __stringify(CONFIG_KERNEL_DTB_ADDR) "\0"	\
 	"initrd_name=ramdisk.img\0"				\
-	"initrd_addr=0x79000000\0"				\
+	"initrd_addr=" __stringify(CONFIG_INITRD_START) "\0"	\
 	"initrd_size=0x600000\0"				\
 	"load_dtb="						\
 		CONFIG_BLOADER_MMC "${dtb_addr} ${dtb_name}; "	\
@@ -336,7 +339,7 @@
 		"setenv initrd_size 0x${filesize}\0"		\
 	"mmcboot="						\
 		"run load_kernel; run load_initrd; run load_dtb; "	\
-		"booti ${loadaddr} ${initrd_addr}:${initrd_size} ${dtb_addr}\0"	\
+		"bootz ${loadaddr} ${initrd_addr}:${initrd_size} ${dtb_addr}\0"	\
 	"bootcmd=run mmcboot\0"					\
 	CONFIG_EXTRA_ENV_BOOT_LOGO
 
