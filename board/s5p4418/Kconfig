@@ -16,6 +16,11 @@ config TARGET_S5P4418_AVN_REF
 	help
 	  Support for s5p4418 avn_ref platform.
 
+config TARGET_NANOPI2
+	bool "NANOPI2"
+	help
+	  Support for FriendlyElec boards based on S5P4418.
+
 config TARGET_S5P4418_NAVI_REF
 	bool "S5P4418_NAVI_REF"
 	help
@@ -66,3 +71,4 @@ source "board/s5p4418/smart_voice/Kconfig"
 source "board/s5p4418/ff_voice/Kconfig"
 source "board/s5p4418/zh_dragon/Kconfig"
 source "board/s5p4418/daudio_covi/Kconfig"
+source "board/s5p4418/nanopi2/Kconfig"
