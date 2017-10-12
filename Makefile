@@ -743,6 +743,9 @@ ALL-y += u-boot.srec u-boot.bin System.map u-boot.cfg binary_size_check
 ifdef CONFIG_ARCH_S5P6818
 ALL-y += fip-nonsecure.img
 endif
+ifdef CONFIG_ARCH_S5P4418
+ALL-y += bootloader.img
+endif
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -906,6 +909,18 @@ BINGEN_FLAGS := -l 0x7df00000 -e 0x00000000 -n $(NSIH)
 fip-nonsecure.img: fip-nonsecure.bin $(NSIH)
 	@echo "Creating \"$@\" (<-- $(NSIH))"
 	$(Q)$(BINGEN) -c S5P6818 -t 3rdboot $(BINGEN_FLAGS) -i $< -o $@
+
+endif
+
+ifdef CONFIG_ARCH_S5P4418
+BINGEN = tools/nexell/SECURE_BINGEN
+
+NSIH ?= tools/nexell/nsih/nanopi2.txt
+BINGEN_FLAGS := -l 0x74c00000 -e 0x74c00000 -n $(NSIH)
+
+bootloader.img: u-boot.bin $(NSIH) tools
+	@echo "Creating \"$@\" (<-- $(NSIH))"
+	$(Q)$(BINGEN) -c S5P4418 -t 3rdboot $(BINGEN_FLAGS) -i $< -o $@
 
 endif
 

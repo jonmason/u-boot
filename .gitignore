@@ -36,6 +36,7 @@
 /u-boot*
 /boards.cfg
 /fip-nonsecure.*
+/bootloader.img
 
 #
 # git files that we don't want to ignore even it they are dot-files
