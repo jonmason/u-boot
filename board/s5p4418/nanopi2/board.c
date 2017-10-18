@@ -503,7 +503,7 @@ int dram_init(void)
 void dram_init_banksize(void)
 {
 #define SCR_USER_SIG6_READ		(SCR_ALIVE_BASE + 0x0F0)
-	int g_NR_chip = readl(SCR_USER_SIG6_READ) & 0x3;
+	unsigned int reg_val = readl(SCR_USER_SIG6_READ);
 
 	/* set global data memory */
 	gd->bd->bi_arch_number = machine_arch_type;
@@ -512,7 +512,13 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size  = CONFIG_SYS_SDRAM_SIZE;
 
-	if (g_NR_chip > 1) {
+	/* Number of Row: 14 bits */
+	if ((reg_val >> 28) == 14) {
+		gd->bd->bi_dram[0].size -= 0x20000000;
+	}
+
+	/* Number of Memory Chips */
+	if ((reg_val & 0x3) > 1) {
 		gd->bd->bi_dram[1].start = 0x80000000;
 		gd->bd->bi_dram[1].size  = 0x40000000;
 	}
