@@ -114,7 +114,7 @@ static struct nxp_lcd wxga_hd700 = {
 		.v_sw =  8,
 	},
 	.polarity = {
-		.rise_vclk = 1,
+		.rise_vclk = 0,
 		.inv_hsync = 0,
 		.inv_vsync = 0,
 		.inv_vden = 0,
