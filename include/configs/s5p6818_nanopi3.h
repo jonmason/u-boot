@@ -267,6 +267,7 @@
  */
 #define CONFIG_FIT_BEST_MATCH
 #define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
 
 /*-----------------------------------------------------------------------
  * VIDEO
@@ -303,11 +304,12 @@
 #define CONFIG_BLOADER_MMC					\
 	"ext4load mmc ${rootdev}:${bootpart} "
 
-#define CONFIG_EXTRA_ENV_BOOT_LOGO				\
-	"splashimage=" __stringify(CONFIG_BMP_LOAD_ADDR)"\0"	\
-	"splashfile=" CONFIG_SPLASH_FILE "\0"			\
-	"splashpos=m,m\0"					\
-	"fb_addr=\0"						\
+#ifdef CONFIG_OF_BOARD_SETUP
+#define CONFIG_EXTRA_ENV_DTB_RESERVE				\
+	"dtb_reserve="						\
+	"if test -n \"$dtb_addr\"; then fdt addr $dtb_addr; fi\0"
+#else
+#define CONFIG_EXTRA_ENV_DTB_RESERVE				\
 	"dtb_reserve="						\
 	"if test -n \"$fb_addr\"; then "			\
 	  "fdt addr $dtb_addr;"					\
@@ -315,9 +317,18 @@
 	  "fdt mk /reserved-memory display_reserved;"		\
 	  "fdt set /reserved-memory/display_reserved reg <$fb_addr 0x800000>;"	\
 	"fi;\0"
+#endif
+
+#define CONFIG_EXTRA_ENV_BOOT_LOGO				\
+	"splashimage=" __stringify(CONFIG_BMP_LOAD_ADDR)"\0"	\
+	"splashfile=" CONFIG_SPLASH_FILE "\0"			\
+	"splashpos=m,m\0"					\
+	"fb_addr=\0"						\
+	CONFIG_EXTRA_ENV_DTB_RESERVE
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0xffffffffffffffff\0"				\
+	"initrd_high=0xffffffffffffffff\0"			\
 	"rootdev=" __stringify(CONFIG_ROOT_DEV) "\0"		\
 	"rootpart=" __stringify(CONFIG_ROOT_PART) "\0"		\
 	"bootpart=" __stringify(CONFIG_BOOT_PART) "\0"		\

@@ -382,7 +382,7 @@ static void bd_update_env(void)
 
 	/* append `bootdev=2' */
 #define CMDLINE_BDEV	" bootdev="
-	if (rootdev == 0 && !strstr(cmdline, CMDLINE_BDEV)) {
+	if (rootdev > 0 && !strstr(cmdline, CMDLINE_BDEV)) {
 		n += sprintf(cmdline + n, "%s2", CMDLINE_BDEV);
 	}
 
@@ -514,3 +514,41 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[1].size  = 0x40000000;
 	}
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	int nodeoff;
+	unsigned int rootdev;
+	unsigned int fb_addr;
+
+	if (board_mmc_bootdev() > 0) {
+		rootdev = fdt_getprop_u32_default(blob, "/board", "sdidx", 2);
+		if (rootdev) {
+			/* find or create "/chosen" node. */
+			nodeoff = fdt_find_or_add_subnode(blob, 0, "chosen");
+			if (nodeoff >= 0)
+				fdt_setprop_u32(blob, nodeoff, "linux,rootdev", rootdev);
+		}
+	}
+
+	fb_addr = getenv_ulong("fb_addr", 0, 0);
+	if (fb_addr) {
+		nodeoff = fdt_path_offset(blob, "/reserved-memory");
+		if (nodeoff < 0)
+			return nodeoff;
+
+		nodeoff = fdt_add_subnode(blob, nodeoff, "display_reserved");
+		if (nodeoff >= 0) {
+			fdt32_t cells[2];
+
+			cells[0] = cpu_to_fdt32(fb_addr);
+			cells[1] = cpu_to_fdt32(0x800000);
+
+			fdt_setprop(blob, nodeoff, "reg", cells, sizeof(cells[0]) * 2);
+		}
+	}
+
+	return 0;
+}
+#endif
