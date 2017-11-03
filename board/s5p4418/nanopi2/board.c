@@ -471,8 +471,13 @@ int splash_screen_prepare(void)
 
 	} else {
 		char devpart[32] = { 0, };
-		int rootdev = getenv_ulong("rootdev", 0, CONFIG_ROOT_DEV);
 		int bootpart = getenv_ulong("bootpart", 0, CONFIG_BOOT_PART);
+		int rootdev;
+
+		if (getenv("firstboot"))
+			rootdev = getenv_ulong("rootdev", 0, CONFIG_ROOT_DEV);
+		else
+			rootdev = board_mmc_bootdev();
 
 		snprintf(devpart, ARRAY_SIZE(info), "%d:%d", rootdev, bootpart);
 		splash_locations[0].devpart = devpart;
