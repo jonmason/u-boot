@@ -201,8 +201,7 @@ int i2c_send_slave_addr(struct gpio_desc *scl, struct gpio_desc *sda, int delay,
 }
 
 static int i2c_gpio_write_data(struct i2c_gpio_bus *bus, uchar chip,
-			       uchar *buffer, int len,
-			       bool end_with_repeated_start)
+			       uchar *buffer, int len)
 {
 	struct gpio_desc *scl = &bus->gpios[PIN_SCL];
 	struct gpio_desc *sda = &bus->gpios[PIN_SDA];
@@ -221,15 +220,7 @@ static int i2c_gpio_write_data(struct i2c_gpio_bus *bus, uchar chip,
 			failures++;
 	}
 
-	if (!end_with_repeated_start) {
-		i2c_gpio_send_stop(scl, sda, delay);
-		return failures;
-	}
-
-	if (i2c_send_slave_addr(scl, sda, delay, (chip << 1) | 0x1)) {
-		debug("i2c_write, no chip responded %02X\n", chip);
-		return -EIO;
-	}
+	i2c_gpio_send_stop(scl, sda, delay);
 
 	return failures;
 }
@@ -242,6 +233,11 @@ static int i2c_gpio_read_data(struct i2c_gpio_bus *bus, uchar chip,
 	unsigned int delay = bus->udelay;
 
 	debug("%s: chip %x buffer: %p len %d\n", __func__, chip, buffer, len);
+
+	if (i2c_send_slave_addr(scl, sda, delay, (chip << 1) | 0x1)) {
+		debug("i2c_read, no chip responded %02X\n", chip);
+		return -EIO;
+	}
 
 	while (len-- > 0)
 		*buffer++ = i2c_gpio_read_byte(scl, sda, delay, len == 0);
@@ -257,14 +253,11 @@ static int i2c_gpio_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 	int ret;
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		bool next_is_read = nmsgs > 1 && (msg[1].flags & I2C_M_RD);
 
 		if (msg->flags & I2C_M_RD) {
-			ret = i2c_gpio_read_data(bus, msg->addr, msg->buf,
-						 msg->len);
+			ret = i2c_gpio_read_data(bus, msg->addr, msg->buf, msg->len);
 		} else {
-			ret = i2c_gpio_write_data(bus, msg->addr, msg->buf,
-						  msg->len, next_is_read);
+			ret = i2c_gpio_write_data(bus, msg->addr, msg->buf, msg->len);
 		}
 
 		if (ret)
