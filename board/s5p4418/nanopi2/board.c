@@ -135,6 +135,7 @@ int nx_display_fixup_dp(struct nx_display_dev *dp)
 	struct nxp_lcd_timing *timing = &lcd->timing;
 	struct dp_sync_info *sync = &dp->sync;
 	struct dp_plane_info *plane = &dp->planes[0];
+	int i;
 	u32 clk = 800000000;
 	u32 div;
 
@@ -162,8 +163,12 @@ int nx_display_fixup_dp(struct nx_display_dev *dp)
 	dp->top.screen_width = lcd->width;
 	dp->top.screen_height = lcd->height;
 
-	plane->width = lcd->width;
-	plane->height = lcd->height;
+	for (i = 0; i < dp->top.plane_num; i++, plane++) {
+		if (plane->enable) {
+			plane->width = lcd->width;
+			plane->height = lcd->height;
+		}
+	}
 
 	/* initialize display device type */
 	if (fmt == LCD_RGB) {
