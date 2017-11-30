@@ -641,6 +641,34 @@ int fw_parse_script(char *fname)
 			len--;
 		}
 
+#if defined(CONFIG_ENV_IS_IN_MMC)
+		if ((len > 20) && !strncmp(dump, "# DEV ", 6)) {
+			ulong devoff, env_size;
+			int rc;
+
+			rc = sscanf (dump + 6, "offset=0x%lx size=0x%lx",
+					&devoff, &env_size);
+			if (rc == 2) {
+				if (environment.data && (DEVOFFSET (0) != devoff))
+					memset(environment.data, 0, CUR_ENVSIZE);
+
+				if (env_size > (CUR_ENVSIZE * 8)) {
+					fprintf(stderr,
+					"Unable to resize environment to 0x%lx\n", env_size);
+					return -1;
+				}
+
+				DEVOFFSET (0) = devoff;
+				ENVSIZE (0) = env_size;
+
+				fprintf(stderr,
+				"Using device %s [offset=0x%lx size=0x%lx]\n",
+					DEVNAME (dev_current), DEVOFFSET (0), ENVSIZE (0));
+			}
+			continue;
+		}
+#endif
+
 		/* Skip comment or empty lines */
 		if ((len == 0) || dump[0] == '#')
 			continue;
@@ -1311,7 +1339,7 @@ int fw_env_open(void)
 	if (parse_config ())		/* should fill envdevices */
 		return -1;
 
-	addr0 = calloc(1, CUR_ENVSIZE);
+	addr0 = calloc(1, CUR_ENVSIZE * 8);
 	if (addr0 == NULL) {
 		fprintf(stderr,
 			"Not enough memory for environment (%ld bytes)\n",
