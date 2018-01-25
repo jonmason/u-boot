@@ -475,7 +475,7 @@ int splash_screen_prepare(void)
 		err = run_command(env_cmd, 0);
 
 	} else {
-		char devpart[32] = { 0, };
+		char devpart[64] = { 0, };
 		int bootpart = getenv_ulong("bootpart", 0, CONFIG_BOOT_PART);
 		int rootdev;
 
@@ -484,7 +484,7 @@ int splash_screen_prepare(void)
 		else
 			rootdev = board_mmc_bootdev();
 
-		snprintf(devpart, ARRAY_SIZE(info), "%d:%d", rootdev, bootpart);
+		snprintf(devpart, ARRAY_SIZE(devpart), "%d:%d", rootdev, bootpart);
 		splash_locations[0].devpart = devpart;
 
 		err = splash_source_load(splash_locations,
