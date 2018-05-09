@@ -91,6 +91,8 @@ const char *get_board_name(void)
 	switch (pcb_rev) {
 		case 1:
 			return "NanoPC-T3";
+		case 3:
+			return "Smart6818";
 		case 4:
 			return "NanoPC-T3T";
 		case 5:
