@@ -130,14 +130,27 @@ int checkboard(void)
 
 int nx_display_fixup_dp(struct nx_display_dev *dp)
 {
+	char *lcdtype = getenv("lcdtype");
 	struct nxp_lcd *lcd = bd_get_lcd();
-	enum lcd_format fmt = bd_get_lcd_format();
-	struct nxp_lcd_timing *timing = &lcd->timing;
+	struct nxp_lcd_timing *timing;
+	enum lcd_format fmt;
 	struct dp_sync_info *sync = &dp->sync;
 	struct dp_plane_info *plane = &dp->planes[0];
 	int i;
 	u32 clk = 800000000;
 	u32 div;
+
+	if (lcdtype) {
+		/* Setup again as user specified LCD in env */
+		bd_setup_lcd_by_name(lcdtype);
+
+		lcd = bd_get_lcd();
+		if (lcd->gpio_init)
+			lcd->gpio_init();
+	}
+
+	timing = &lcd->timing;
+	fmt = bd_get_lcd_format();
 
 	sync->h_active_len = lcd->width;
 	sync->h_sync_width = timing->h_sw;
@@ -316,7 +329,6 @@ static void set_dtb_name(void)
 
 static void bd_update_env(void)
 {
-	char *lcdtype = getenv("lcdtype");
 	char *lcddpi = getenv("lcddpi");
 	char *bootargs = getenv("bootargs");
 	const char *name;
@@ -332,11 +344,6 @@ static void bd_update_env(void)
 		setenv_ulong("rootdev", rootdev);
 		setenv("firstboot", "0");
 		need_save = 1;
-	}
-
-	if (lcdtype) {
-		/* Setup again as user specified LCD in env */
-		bd_setup_lcd_by_name(lcdtype);
 	}
 
 	name = bd_get_lcd_name();
