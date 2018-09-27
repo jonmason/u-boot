@@ -201,6 +201,7 @@ int nx_display_fixup_dp(struct nx_display_dev *dp)
 
 		dp->dev_type = DP_DEVICE_LVDS;
 		dev->lvds_format = (fmt & 0x3);
+		dev->voltage_level = 0x11f;
 	}
 
 	return 0;
