@@ -99,6 +99,8 @@ const char *get_board_name(void)
 			return "NanoPi Fire 3";
 		case 7:
 			return "NanoPi M3";
+		case 2:
+			return "NanoPi M3B";
 		default:
 			return "s5p6818-X";
 	}
