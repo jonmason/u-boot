@@ -159,7 +159,7 @@ static int lvds_setup(int module, int input,
 			|	(0<<23) /* VOD_HIGH_S, VOD control pin, 1 : Vod only */
 			|	(0<<22) /* SRC_TRH, source termination resistor select pin */
 			|	(voltage<<14)
-			|	(0x07<<6) /* CNT_PEN_H, TX driver pre-emphasis level control */
+			|	(0x01<<6) /* CNT_PEN_H, TX driver pre-emphasis level control */
 			|	(0x4<<3) /* FC_CODE, vos control pin */
 			|	(0<<2) /* OUTCON, TX Driver state selectioin pin, 0:Hi-z, 1:Low */
 			|	(0<<1) /* LOCK_CNT, Lock signal selection pin, enable */
