@@ -21,6 +21,7 @@
 	aliases {
 		mmc0 = "/mmc@c0069000";
 		mmc1 = "/mmc@c0062000";
+		i2c0 = "/i2c@0";
 		i2c2 = "/i2c@2";
 	};
 
@@ -50,6 +51,16 @@
 
 	dwc2otg@c0040000 {
 		status = "okay";
+	};
+
+	i2c0:i2c@0 {
+		compatible = "i2c-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		gpios = <&gpio_d 3 0>,	/* SDA */
+			  <&gpio_d 2 0>;	/* SCL */
+		i2c-gpio,delay-us = <3>;
+		status ="okay";
 	};
 
 	i2c2:i2c@2 {

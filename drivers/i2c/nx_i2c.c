@@ -119,7 +119,7 @@ static uint i2c_set_clk(struct nx_i2c_bus *bus, uint enb)
 }
 
 /* get i2c module number from base address */
-static uint i2c_get_busnum(struct nx_i2c_bus *bus)
+static int i2c_get_busnum(struct nx_i2c_bus *bus)
 {
 	void *base_addr = (void *)PHY_BASEADDR_I2C0;
 	int i;
@@ -221,7 +221,7 @@ static int nx_i2c_probe(struct udevice *dev)
 	/* get regs */
 	bus->regs = (struct nx_i2c_regs *)dev_get_addr(dev);
 	/* calc index */
-	if (!i2c_get_busnum(bus)) {
+	if (i2c_get_busnum(bus) < 0) {
 		debug("not found i2c number!\n");
 		return -1;
 	}

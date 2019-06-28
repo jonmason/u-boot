@@ -21,6 +21,7 @@
 	aliases {
 		mmc0 = "/mmc@c0069000";
 		mmc1 = "/mmc@c0062000";
+		i2c0 = "/i2c@c00a4000";
 		i2c2 = "/i2c@c00a6000";
 	};
 
@@ -50,6 +51,12 @@
 
 	dwc2otg@c0040000 {
 		status = "okay";
+	};
+
+	i2c0:i2c@c00a4000 {
+		status ="okay";
+		nexell,i2c-sda-delay = <100>;
+		nexell,i2c-max-bus-freq = <100000>;
 	};
 
 	i2c2:i2c@c00a6000 {

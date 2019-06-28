@@ -22,6 +22,7 @@
 #ifdef CONFIG_PWM_NX
 #include <pwm.h>
 #endif
+#include <i2c.h>
 #include <asm/io.h>
 
 #include <asm/arch/nexell.h>
@@ -262,7 +263,15 @@ static void bd_lcd_init(void)
 
 static int mac_read_from_generic_eeprom(u8 *addr)
 {
-	return -1;
+	struct udevice *i2c_dev;
+	int ret;
+
+	/* Microchip 24AA02xxx EEPROMs with EUI-48 Node Identity */
+	ret = i2c_get_chip_for_busnum(0, 0x51, 1, &i2c_dev);
+	if (!ret)
+		ret = dm_i2c_read(i2c_dev, 0xfa, addr, 6);
+
+	return ret;
 }
 
 static void make_ether_addr(u8 *addr)
@@ -294,12 +303,13 @@ static void set_ether_addr(void)
 	char ethaddr[20];
 	int ret;
 
-	if (getenv("ethaddr"))
-		return;
-
 	ret = mac_read_from_generic_eeprom(mac);
-	if (ret < 0)
+	if (ret < 0) {
+		if (getenv("ethaddr"))
+			return;
+
 		make_ether_addr(mac);
+	}
 
 	sprintf(ethaddr, "%02x:%02x:%02x:%02x:%02x:%02x",
 			mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
